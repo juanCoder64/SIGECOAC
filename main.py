@@ -3,6 +3,7 @@ import tkinter as tk
 estudiantes = [("estudiante", "contraseña")]
 profesores = [("profesor", "contraseña")]
 root = tk.Tk()
+root.title("Sistema de Gestión de Consultas Académicas")
 root.geometry("300x300")
 a = tk.Label(root, text="Sistema de Gestión de Consultas Académicas")
 a.pack()
