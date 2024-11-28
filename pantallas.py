@@ -45,23 +45,6 @@ class Login(tk.Frame):
         else:
             self.result_label.config(text="Usuario o contraseña incorrectos")
 
-class Calendario(tk.Frame):
-    def __init__(self, root):
-        super().__init__(root)
-        self.root = root
-        self.horasDisponibles = horasDisponibles
-
-        self.root.title("Calendario")
-        tk.Label(self, text="Calendario").pack()
-        tk.Label(self, text="Horas disponibles").pack()
-        self.horas_combobox = ttk.Combobox(self, values=self.horasDisponibles)
-        self.horas_combobox.pack()
-        tk.Button(self, text="Modificar", command=self.modificar).pack()
-        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
-
-    def modificar(self):
-        hora = self.horas_combobox.get()
-        print(f"Hora seleccionada: {hora}")
 
 class Estudiante(tk.Frame):
     def __init__(self, root):
@@ -105,6 +88,7 @@ class Profesor(tk.Frame):
 
 
     def actualizarDisponibilidad(self):
+        self.root.switch_frame(Calendario)
         print("Actualizar disponibilidad")
 
 
@@ -124,19 +108,45 @@ class seleccionaProfesor(tk.Frame):
     def seleccionar(self):
         profesor = self.profesores_combobox.get()
         print(f"Profesor seleccionado: {profesor}")
-class seleccionaDia(tk.Frame):
-    def __init__(self, root, diasDisponibles):
+
+class Calendario(tk.Frame):
+    # show days of the week and options to select hours for each day
+    def __init__(self, root):
         super().__init__(root)
         self.root = root
+        self.root.title("Calendario")
+        self.days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+        self.hours = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
+        self.day_labels = []
+        self.hour_labels = []
+        self.hour_checkbuttons = []
+        self.hours_selected = []
 
-        self.root.title("Selecciona Día")
-        tk.Label(self, text="Selecciona Día").pack()
-        tk.Label(self, text="Días disponibles").pack()
-        self.dias_combobox = ttk.Combobox(self, values=diasDisponibles)
-        self.dias_combobox.pack()
-        tk.Button(self, text="Seleccionar", command=self.seleccionar).pack()
-        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
+        for day in self.days:
+            day_frame = tk.Frame(self)
+            day_frame.pack(side=tk.LEFT, padx=5, pady=5)
+            label = tk.Label(day_frame, text=day)
+            label.pack()
+            self.day_labels.append(label)
+            for hour in self.hours:
+                hour_frame = tk.Frame(day_frame)
+                hour_frame.pack()
+                label = tk.Label(hour_frame, text=hour)
+                label.pack(side=tk.LEFT)
+                self.hour_labels.append(label)
+                var = tk.IntVar()
+                checkbutton = tk.Checkbutton(hour_frame, variable=var)
+                checkbutton.pack(side=tk.LEFT)
+                self.hour_checkbuttons.append(checkbutton)
+                self.hours_selected.append(var)
 
-    def seleccionar(self):
-        dia = self.dias_combobox.get()
-        print(f"Día seleccionado: {dia}")
+        tk.Button(self, text="Confirmar", command=self.confirmar).pack()
+
+    def confirmar(self):
+        print("Horas seleccionadas:")
+        for i, var in enumerate(self.hours_selected):
+            if var.get():
+                print(self.days[i // len(self.hours)], self.hours[i % len(self.hours)])
+        # save selected hours
+        # return to previous frame
+        self.root.switch_frame(Estudiante)

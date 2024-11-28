@@ -7,8 +7,10 @@ class usuario:
         self.nombre = nombre
         self.correo = correo
         self.contrasena = contrasena
+        self.consultasVigentes = []
 
     def cancelarConsulta(self):
+
         pass
 
     def mostrarConsultas(self):
@@ -25,7 +27,10 @@ class usuario:
 
 
 class estudiante(usuario):
-    def programarConsulta(self):
+    def programarConsulta(self, e, p, fecha,notas, estado, objProfesor):
+        con= consulta(e, p, fecha, notas, estado)
+        objProfesor.consultasVigentes.append(con)
+        self.consultasVigentes.append(con)
         pass
 
 
