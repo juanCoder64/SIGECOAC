@@ -257,19 +257,10 @@ class mostrarHorarioProfesor(tk.Frame):
 
     def programarConsulta(self):
         hora = self.combobox.get()
-        print(self.profesor.horarioDisponible[self.diaSem])
         if hora not in self.profesor.horarioDisponible[self.diaSem]:
             self.root.switch_frame(seleccionaDia, self.profesor, self.estudiante)
             return
-        (self.profesor.horarioDisponible[self.diaSem]).remove(hora)
-        print(self.profesor.horarioDisponible)
-        print(self.notas.get())
-        consulta = clases.consulta(self.estudiante, self.profesor, (self.dia, hora), self.notas.get(), 2)
-        self.profesor.consultasVigentes.append(consulta)
-        self.estudiante.consultasVigentes.append(consulta)
-        print("dia: ", self.diaSem)
-        print(f"Hora seleccionada: {hora}")
-        print("Programar consulta")
+        self.estudiante.programarConsulta(self.profesor, self.estudiante, self.diaSem, hora, self.dia, self.notas.get(), 2)
         self.root.switch_frame(Estudiante, self.estudiante)
 
 
@@ -341,7 +332,7 @@ class CancelarConsulta(tk.Frame):
     def cancelarConsulta(self, consulta):
         print("Cancelar consulta")
         self.usuario.cancelarConsulta(consulta)
-        self.root.switch_frame(Estudiante, self.usuario)
+        self.volver()
 
 
 class ConfirmarConsulta(tk.Frame):

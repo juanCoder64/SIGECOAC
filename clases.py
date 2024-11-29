@@ -12,7 +12,8 @@ class usuario:
         notificacion = Notificacion(0,consulta.profesor,f"La consulta con {consulta.estudiante.nombre} ha sido cancelada")
         notificacion.enviarNotificacion()
         diaSemana = consulta.fecha[0].weekday()
-        consulta.profesor.horarioDisponible[diaSemana].append(consulta.fecha[1]).sort()
+        consulta.profesor.horarioDisponible[diaSemana].append(consulta.fecha[1])
+        consulta.profesor.horarioDisponible[diaSemana].sort()
         consulta.estado = 0
 
     def revisarConsultas(self):
@@ -30,10 +31,13 @@ class usuario:
 
 
 class estudiante(usuario):
-    def programarConsulta(self, e, p, fecha, notas, estado, objProfesor):
-        con = consulta(e, p, fecha, notas, estado)
-        objProfesor.consultasVigentes.append(con)
+    def programarConsulta(self, profesor,estudiante, diaSem, hora, fecha, notas, estado):
+        con = consulta(estudiante, profesor, (fecha,hora), notas, estado)
+        profesor.horarioDisponible[diaSem].remove(hora)
+        profesor.consultasVigentes.append(con)
         self.consultasVigentes.append(con)
+        notificacion = Notificacion(0,profesor,f"El estudiante {estudiante.nombre} ha programado una consulta")
+        notificacion.enviarNotificacion()
 
 
 class profesor(usuario):
