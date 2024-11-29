@@ -9,6 +9,10 @@ class usuario:
         self.notificaciones = []
 
     def cancelarConsulta(self, consulta):
+        notificacion = Notificacion(0,consulta.profesor,f"La consulta con {consulta.estudiante.nombre} ha sido cancelada")
+        notificacion.enviarNotificacion()
+        diaSemana = consulta.fecha[0].weekday()
+        consulta.profesor.horarioDisponible[diaSemana].append(consulta.fecha[1]).sort()
         consulta.estado = 0
 
     def revisarConsultas(self):
@@ -16,8 +20,10 @@ class usuario:
 
     def confirmarConsulta(self, consulta):
         consulta.estado = 1
+        notificacion = Notificacion(0,consulta.estudiante,f"La consulta con {consulta.profesor.nombre} ha sido confirmada")
+        notificacion.enviarNotificacion()
 
-    def visualizarHorario(self):
+    def visualizarHorario(self, profesor):
         for p in datos.objProf:
             if p.nombre == profesor:
                 return p
@@ -37,7 +43,18 @@ class profesor(usuario):
         self.horarioDisponible = horario
         pass
 
+    def cancelarConsulta(self, consulta):
+        notificacion = Notificacion(0,consulta.estudiante,f"La consulta con {consulta.profesor.nombre} ha sido cancelada")
+        notificacion.enviarNotificacion()
+        diaSemana = consulta.fecha[0].weekday()
+        consulta.profesor.horarioDisponible[diaSemana].append(consulta.fecha[1])
+        consulta.profesor.horarioDisponible[diaSemana].sort()
+        consulta.estado = 0
 
+    def confirmarConsulta(self, consulta):
+        consulta.estado = 1
+        notificacion = Notificacion(0,consulta.estudiante,f"La consulta con {consulta.profesor.nombre} ha sido confirmada")
+        notificacion.enviarNotificacion()
 class calendario:
     def __init__(self, horasDisponibles):
         self.horasDisponibles = horasDisponibles
@@ -50,13 +67,15 @@ class calendario:
 
 
 class Notificacion:
-    def __init__(self, estado, destinatario):  #generar notificacion
+    def __init__(self, estado, destinatario, mensaje):  #generar notificacion
         self.estado = estado
         self.destinatario = destinatario
+        self.mensaje = mensaje
 
     def enviarNotificacion(self):
-        pass
-
+        self.destinatario.notificaciones.append(self)
+    def leerNotificacion(self):
+        self.estado = 1
 
 class consulta:
     def __init__(self, estudiante, profesor, fecha, notas, estado):  #Generar consulta
