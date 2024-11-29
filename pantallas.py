@@ -3,7 +3,6 @@ from tkinter import ttk
 import tkcalendar
 import datos
 import clases
-import datetime
 
 
 class app(tk.Tk):
@@ -72,13 +71,12 @@ class Estudiante(tk.Frame):
 
     def cancelarConsulta(self):
         print("Cancelar consulta")
+        self.root.switch_frame(CancelarConsulta, self.usuario)
 
     def mostrarConsultas(self):
-        print("Mostrar consultas")
+        print("Revisar consultas")
         self.root.switch_frame(MostrarConsultas, self.usuario)
 
-    def confirmarConsulta(self):
-        print("Confirmar consulta")
 
     def visualizarHorario(self):
         print("Visualizar horario")
@@ -266,5 +264,40 @@ class MostrarConsultas(tk.Frame):
             for c in self.consultas:
                 tk.Label(self, text=f"Consulta con {c.profesor} el {c.fecha[0]} a las {c.fecha[1]}").pack()
                 tk.Label(self, text=f"Notas: {c.notas}").pack()
+                estado= "Pendiente"
+                if c.estado == 2:
+                    estado = "Confirmada"
+                tk.Label(self, text=f"Estado: {estado}").pack()
 
         tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
+
+class CancelarConsulta(tk.Frame):
+    def __init__(self, root, usuario):
+        super().__init__(root)
+        self.root = root
+        self.root.title("Cancelar Consulta")
+        tk.Label(self, text="Cancelar Consulta").pack()
+        self.usuario = usuario
+        self.consultas = []
+        for c in self.usuario.consultasVigentes:
+            if c.estado == 1:
+                self.consultas.append(c)
+        if len(self.consultas) == 0:
+            tk.Label(self, text="No hay consultas disponibles").pack()
+        else:
+            for c in self.consultas:
+                tk.Label(self, text=f"Consulta con {c.profesor} el {c.fecha[0]} a las {c.fecha[1]}").pack()
+                tk.Label(self, text=f"Notas: {c.notas}").pack()
+                estado = "Pendiente"
+                if c.estado == 2:
+                    estado = "Confirmada"
+                tk.Label(self, text=f"Estado: {estado}").pack()
+                tk.Button(self, text="Cancelar consulta", command=lambda: self.cancelarConsulta(c)).pack()
+
+        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
+
+    def cancelarConsulta(self, consulta):
+        print("Cancelar consulta")
+        consulta.estado = 0
+        self.root.switch_frame(Estudiante, self.usuario)
+

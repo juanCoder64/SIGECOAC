@@ -3,6 +3,7 @@ class usuario:
         self.nombre = nombre
         self.contrasena = contrasena
         self.consultasVigentes = []
+        self.notificaciones = []
 
     def cancelarConsulta(self):
 
