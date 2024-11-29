@@ -1,37 +1,38 @@
+import datos
+
+
 class usuario:
-    def __init__(self, nombre, contrasena):
+    def __init__(self, nombre, contrasena):  #iniciar sesion
         self.nombre = nombre
         self.contrasena = contrasena
         self.consultasVigentes = []
         self.notificaciones = []
 
-    def cancelarConsulta(self):
+    def cancelarConsulta(self, consulta):
+        consulta.estado = 0
 
-        pass
+    def revisarConsultas(self):
+        return self.consultasVigentes
 
-    def mostrarConsultas(self):
-        pass
-
-    def confirmarConsulta(self):
-        pass
+    def confirmarConsulta(self, consulta):
+        consulta.estado = 1
 
     def visualizarHorario(self):
-        pass
-
-    def iniciarSesion(self):
-        pass
+        for p in datos.objProf:
+            if p.nombre == profesor:
+                return p
 
 
 class estudiante(usuario):
-    def programarConsulta(self, e, p, fecha,notas, estado, objProfesor):
-        con= consulta(e, p, fecha, notas, estado)
+    def programarConsulta(self, e, p, fecha, notas, estado, objProfesor):
+        con = consulta(e, p, fecha, notas, estado)
         objProfesor.consultasVigentes.append(con)
         self.consultasVigentes.append(con)
-        pass
 
 
 class profesor(usuario):
     horarioDisponible = [[], [], [], [], [], [], []]
+
     def actualizarDisponibilidad(self, horario):
         self.horarioDisponible = horario
         pass
@@ -39,7 +40,7 @@ class profesor(usuario):
 
 class calendario:
     def __init__(self, horasDisponibles):
-        self.horasDisponibles = horasDisponibles;
+        self.horasDisponibles = horasDisponibles
 
     def mostrarHorario(self):
         pass
