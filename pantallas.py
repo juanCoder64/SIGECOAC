@@ -47,7 +47,8 @@ class Login(tk.Frame):
         elif (usuario, contrasena) in datos.profesores:
             print("Profesor")
             self.result_label.config(text="Cuenta de tipo profesor")
-            self.root.switch_frame(Profesor, usuario)
+            prof = datos.objProf[datos.profesores.index((usuario, contrasena))]
+            self.root.switch_frame(Profesor, prof)
         else:
             self.result_label.config(text="Usuario o contraseña incorrectos")
 
@@ -61,9 +62,8 @@ class Estudiante(tk.Frame):
         tk.Label(self, text="Estudiante").pack()
         tk.Button(self, text="Programar consulta", command=self.programarConsulta).pack()
         tk.Button(self, text="Cancelar consulta", command=self.cancelarConsulta).pack()
-        tk.Button(self, text="Mostrar consultas", command=self.mostrarConsultas).pack()
-        tk.Button(self, text="Confirmar consulta", command=self.confirmarConsulta).pack()
-        tk.Button(self, text="Visualizar horario", command=self.visualizarHorario).pack()
+        tk.Button(self, text="Revisar consultas", command=self.mostrarConsultas).pack()
+        tk.Button(self, text="Consultar horario", command=self.visualizarHorario).pack()
 
     def programarConsulta(self):
         print("Programar consulta")
@@ -74,9 +74,11 @@ class Estudiante(tk.Frame):
         self.root.switch_frame(CancelarConsulta, self.usuario)
 
     def mostrarConsultas(self):
-        print("Revisar consultas")
-        self.root.switch_frame(MostrarConsultas, self.usuario)
+        print("Mostrar consultas")
+        self.root.switch_frame(RevisarConsultas, self.usuario)
 
+    def confirmarConsulta(self):
+        print("Confirmar consulta")
 
     def visualizarHorario(self):
         print("Visualizar horario")
@@ -90,11 +92,26 @@ class Profesor(tk.Frame):
 
         self.root.title("Profesor")
         tk.Label(self, text="Profesor").pack()
-        tk.Button(self, text="Ingresa Horario", command=self.actualizarDisponibilidad).pack()
-
+        tk.Button(self, text="Ingresar Horario", command=self.actualizarDisponibilidad).pack()
+        tk.Button(self, text="Revisar Consultas", command=self.revisarConsultas).pack()
+        tk.Button(self, text="Consultar Horario", command=self.consultarHorario).pack()
+        tk.Button(self, text="Cancelar Consultas", command=self.cancelarConsultas).pack()
+        tk.Button(self, text="Confirmar Consultas", command=self.confirmarConsultas).pack()
     def actualizarDisponibilidad(self):
         self.root.switch_frame(Calendario, self.name)
         print("Actualizar disponibilidad")
+    def revisarConsultas(self):
+        print("Revisar consultas")
+        self.root.switch_frame(RevisarConsultas, self.name)
+    def consultarHorario(self):
+        print("Consultar horario")
+
+    def cancelarConsultas(self):
+        print("Cancelar consultas")
+        self.root.switch_frame(CancelarConsulta, self.name)
+    def confirmarConsultas(self):
+        print("Confirmar consultas")
+        self.root.switch_frame(ConfirmarConsulta, self.name)
 
 
 class Calendario(tk.Frame):
@@ -147,7 +164,7 @@ class Calendario(tk.Frame):
                 break
         # save selected hours
         # return to previous frame
-        self.root.switch_frame(Estudiante)
+        self.root.switch_frame(Profesor, self.profesor)
 
 
 class seleccionaProfesor(tk.Frame):
@@ -247,7 +264,7 @@ class mostrarHorarioProfesor(tk.Frame):
         self.root.switch_frame(Estudiante, self.estudiante)
 
 
-class MostrarConsultas(tk.Frame):
+class RevisarConsultas(tk.Frame):
     def __init__(self, root, usuario):
         super().__init__(root)
         self.root = root
@@ -301,3 +318,32 @@ class CancelarConsulta(tk.Frame):
         consulta.estado = 0
         self.root.switch_frame(Estudiante, self.usuario)
 
+class ConfirmarConsulta(tk.Frame):
+    def __init__(self, root, usuario):
+        super().__init__(root)
+        self.root = root
+        self.root.title("Confirmar Consulta")
+        tk.Label(self, text="Confirmar Consulta").pack()
+        self.usuario = usuario
+        self.consultas = []
+        for c in self.usuario.consultasVigentes:
+            if c.estado == 1:
+                self.consultas.append(c)
+        if len(self.consultas) == 0:
+            tk.Label(self, text="No hay consultas disponibles").pack()
+        else:
+            for c in self.consultas:
+                tk.Label(self, text=f"Consulta con {c.profesor} el {c.fecha[0]} a las {c.fecha[1]}").pack()
+                tk.Label(self, text=f"Notas: {c.notas}").pack()
+                estado = "Pendiente"
+                if c.estado == 2:
+                    estado = "Confirmada"
+                tk.Label(self, text=f"Estado: {estado}").pack()
+                tk.Button(self, text="Confirmar consulta", command=lambda: self.confirmarConsulta(c)).pack()
+
+        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
+
+    def confirmarConsulta(self, consulta):
+        print("Confirmar consulta")
+        consulta.estado = 2
+        self.root.switch_frame(Profesor, self.usuario)
