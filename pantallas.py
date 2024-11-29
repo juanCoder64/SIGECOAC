@@ -294,7 +294,7 @@ class RevisarConsultas(tk.Frame):
         else:
             self.root.switch_frame(Profesor, self.usuario)
 
-
+''''
 class CancelarConsulta(tk.Frame):
     def __init__(self, root, usuario):
         super().__init__(root)
@@ -333,7 +333,45 @@ class CancelarConsulta(tk.Frame):
         print("Cancelar consulta")
         self.usuario.cancelarConsulta(consulta)
         self.volver()
+'''
+class CancelarConsulta(tk.Frame):
+    def __init__(self, root, usuario):
+        super().__init__(root)
+        self.root = root
+        self.root.title("Cancelar Consulta")
+        tk.Label(self, text="Cancelar Consulta").pack()
+        self.usuario = usuario
+        self.consultas = []
+        for c in self.usuario.consultasVigentes:
+            if c.estado != 0:
+                self.consultas.append(c)
+        if len(self.consultas) == 0:
+            tk.Label(self, text="No hay consultas disponibles").pack()
+        else:
+            for c in self.consultas:
+                if self.usuario == c.estudiante:
+                    tk.Label(self, text=f"Consulta con {c.profesor.nombre} el {c.fecha[0]} a las {c.fecha[1]}").pack()
+                else:
+                    tk.Label(self, text=f"Consulta con {c.estudiante.nombre} el {c.fecha[0]} a las {c.fecha[1]}").pack()
+                tk.Label(self, text=f"Notas: {c.notas}").pack()
+                estado = "Pendiente"
+                if c.estado == 1:
+                    estado = "Confirmada"
+                tk.Label(self, text=f"Estado: {estado}").pack()
+                tk.Button(self, text="Cancelar consulta", command=lambda: self.cancelarConsulta(c)).pack()
 
+        tk.Button(self, text="Volver", command=self.volver).pack()
+
+    def volver(self):
+        if isinstance(self.usuario, clases.estudiante):
+            self.root.switch_frame(Estudiante, self.usuario)
+        else:
+            self.root.switch_frame(Profesor, self.usuario)
+
+    def cancelarConsulta(self, consulta):
+        print("Cancelar consulta")
+        self.usuario.cancelarConsulta(consulta)
+        self.volver()
 
 class ConfirmarConsulta(tk.Frame):
     def __init__(self, root, usuario):
@@ -395,7 +433,7 @@ class ConsultarHorario(tk.Frame):
         profesor = self.profesores_combobox.get()
         print(f"Profesor seleccionado: {profesor}")
         p = self.usuario.visualizarHorario(profesor)
-        self.root.switch_frame(MostrarHorario, p,1)
+        self.root.switch_frame(MostrarHorario, p,self.usuario)
 
 
 class MostrarHorario(tk.Frame):
@@ -419,6 +457,6 @@ class MostrarHorario(tk.Frame):
 
     def volver(self):
         if self.estudiante:
-            self.root.switch_frame(Estudiante, self.usuario)
+            self.root.switch_frame(Estudiante, self.estudiante)
         else:
             self.root.switch_frame(Profesor, self.usuario)
