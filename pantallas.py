@@ -77,11 +77,9 @@ class Estudiante(tk.Frame):
         print("Mostrar consultas")
         self.root.switch_frame(RevisarConsultas, self.usuario)
 
-    def confirmarConsulta(self):
-        print("Confirmar consulta")
-
     def visualizarHorario(self):
         print("Visualizar horario")
+        self.root.switch_frame(ConsultarHorario, self.usuario)
 
 
 class Profesor(tk.Frame):
@@ -105,6 +103,7 @@ class Profesor(tk.Frame):
         self.root.switch_frame(RevisarConsultas, self.name)
     def consultarHorario(self):
         print("Consultar horario")
+        self.root.switch_frame(MostrarHorario, self.name)
 
     def cancelarConsultas(self):
         print("Cancelar consultas")
@@ -157,13 +156,7 @@ class Calendario(tk.Frame):
                 print(self.days[i // len(self.hours)], self.hours[i % len(self.hours)])
                 horario[i // len(self.hours)].append(self.hours[i % len(self.hours)])
         print(horario)
-        # update profesor horarioDisponible
-        for p in datos.objProf:
-            if p.nombre == self.profesor:
-                p.horarioDisponible = horario
-                break
-        # save selected hours
-        # return to previous frame
+        self.profesor.horarioDisponible = horario
         self.root.switch_frame(Profesor, self.profesor)
 
 
@@ -272,7 +265,7 @@ class RevisarConsultas(tk.Frame):
         tk.Label(self, text="Mostrar Consultas").pack()
         self.usuario = usuario
         self.consultas = []
-        for c in self.usuario.consultasVigentes:
+        for c in self.usuario.revisarConsultas():
             if c.estado == 1:
                 self.consultas.append(c)
         if len(self.consultas) == 0:
@@ -315,7 +308,7 @@ class CancelarConsulta(tk.Frame):
 
     def cancelarConsulta(self, consulta):
         print("Cancelar consulta")
-        consulta.estado = 0
+        self.usuario.cancelarConsulta(consulta)
         self.root.switch_frame(Estudiante, self.usuario)
 
 class ConfirmarConsulta(tk.Frame):
@@ -345,5 +338,41 @@ class ConfirmarConsulta(tk.Frame):
 
     def confirmarConsulta(self, consulta):
         print("Confirmar consulta")
-        consulta.estado = 2
+        self.usuario.confirmarConsulta(consulta)
         self.root.switch_frame(Profesor, self.usuario)
+class ConsultarHorario (tk.Frame):
+    def __init__(self, root, usuario):
+        super().__init__(root)
+        self.root = root
+        self.root.title("Consultar Horario")
+        tk.Label(self, text="Consultar Horario").pack()
+        self.usuario = usuario
+        tk.Label(self, text="Seleccione profesor").pack()
+        self.profesores_combobox = ttk.Combobox(self, values=datos.profesDisponibles)
+        self.profesores_combobox.pack()
+        tk.Button(self, text="Seleccionar", command=self.seleccionar).pack()
+        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
+    def seleccionar(self):
+        profesor = self.profesores_combobox.get()
+        print(f"Profesor seleccionado: {profesor}")
+        p=self.usuario.visualizarHorario(profesor)
+        self.root.switch_frame(MostrarHorario, p)
+
+
+class MostrarHorario(tk.Frame):
+    def __init__(self, root, usuario):
+        super().__init__(root)
+        self.root = root
+        self.root.title("Mostrar Horario")
+        tk.Label(self, text="Mostrar Horario").pack()
+        self.usuario = usuario
+        self.horario = usuario.horarioDisponible
+        frame = tk.Frame(self)
+        frame.pack()
+        for i, dia in enumerate(self.horario):
+            day_frame = tk.Frame(frame)
+            day_frame.pack(side=tk.LEFT, padx=5, pady=5)
+            tk.Label(day_frame, text=datos.dias[i]).pack()
+            for hora in dia:
+                tk.Label(day_frame, text=hora).pack()
+        tk.Button(self, text="Volver al login", command=lambda: root.switch_frame(Login)).pack()
